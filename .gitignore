@@ -1,0 +1,11 @@
+node_modules/
+logs/
+tmp/
+
+# Runtime/persistent local data
+data/episodes.json
+data/youtube-imported.json
+public/audio/
+
+# macOS
+.DS_Store

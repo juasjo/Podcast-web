@@ -1,0 +1,52 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: podcas-web
+    command: npm start
+    environment:
+      TZ: ${TZ:-Europe/Madrid}
+      PORT: 3000
+      BASE_URL: ${BASE_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./public/audio:/app/public/audio
+      - ./logs:/var/log/podcas
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/ >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: podcas-scheduler
+    command: /app/scripts/start-scheduler.sh
+    environment:
+      TZ: ${TZ:-Europe/Madrid}
+      BASE_URL: ${BASE_URL:-http://web:3000}
+      SCHEDULE_CRON: ${SCHEDULE_CRON:-0 6 * * *}
+      IMPORT_MIN_DURATION: ${IMPORT_MIN_DURATION:-180}
+      RUN_ON_STARTUP: ${RUN_ON_STARTUP:-false}
+      LOCK_PATH: /app/data/.import.lock
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./public/audio:/app/public/audio
+      - ./logs:/var/log/podcas
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -q '[c]rond -f'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped

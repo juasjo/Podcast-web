@@ -1,0 +1,15 @@
+{
+  "name": "podcas-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "import:youtube": "node scripts/publish-youtube-from-md.js",
+    "validate:import-parser": "node src/validators/importParserValidator.js",
+    "validate:feed": "node src/validators/feedValidator.js",
+    "validate:web": "node src/validators/webValidator.js",
+    "validate:integration": "node src/validators/integrationValidator.js",
+    "test": "npm run validate:import-parser && npm run validate:feed && npm run validate:web && npm run validate:integration"
+  }
+}
